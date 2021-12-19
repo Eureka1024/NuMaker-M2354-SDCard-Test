@@ -1,0 +1,2527 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;/******************************************************
+                       ********************//**
+    2 00000000         ; * @file     startup_M2354.s
+    3 00000000         ; * @version  V2.00
+    4 00000000         ; * $Revision: 9 $
+    5 00000000         ; * $Date: 16/08/27 12:33p $ 
+    6 00000000         ; * @brief   Startup Source File
+    7 00000000         ; *
+    8 00000000         ; * @note
+    9 00000000         ; * SPDX-License-Identifier: Apache-2.0
+   10 00000000         ; * Copyright (C) 2016-2020 Nuvoton Technology Corp. All
+                        rights reserved.
+   11 00000000         ; *
+   12 00000000         ; ******************************************************
+                       ************************/
+   13 00000000         
+   14 00000000         
+   15 00000000         ;/*
+   16 00000000         ;//-------- <<< Use Configuration Wizard in Context Menu
+                        >>> ------------------
+   17 00000000         ;*/
+   18 00000000         ; <h> Stack Configuration
+   19 00000000         ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   20 00000000         ; </h>
+   21 00000000         
+   22 00000000                 IF               :LNOT: :DEF: Stack_Size
+   24                          ENDIF
+   25 00000000         
+   26 00000000                 AREA             |.STACK|, NOINIT, READWRITE, AL
+IGN=3
+   27 00000000         Stack_Mem
+                               SPACE            Stack_Size
+   28 00002000         __initial_sp
+   29 00002000         
+   30 00002000         
+   31 00002000         ; <h> Heap Configuration
+   32 00002000         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   33 00002000         ; </h>
+   34 00002000         
+   35 00002000                 IF               :LNOT: :DEF: Heap_Size
+   37                          ENDIF
+   38 00002000         
+   39 00002000                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+3
+   40 00000000         __heap_base
+   41 00000000         Heap_Mem
+                               SPACE            Heap_Size
+   42 00001000         __heap_limit
+   43 00001000         
+   44 00001000         
+   45 00001000                 PRESERVE8
+   46 00001000                 THUMB
+   47 00001000         
+   48 00001000         
+   49 00001000         ; Vector Table Mapped to Address 0 at Reset
+   50 00001000         
+   51 00001000                 AREA             RESET, DATA, READONLY
+   52 00000000                 EXPORT           g_pfnVectors
+   53 00000000                 EXPORT           g_pfnVectors_End
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   54 00000000                 EXPORT           g_pfnVectors_Size
+   55 00000000         ;Wayne   IMPORT  SendChar_ToUART
+   56 00000000                 IMPORT           SCU_IRQHandler
+   57 00000000         
+   58 00000000 00000000 
+                       g_pfnVectors
+                               DCD              __initial_sp ;     Top of Stack
+                                                            
+   59 00000004 00000000        DCD              Reset_Handler 
+                                                            ;     Reset Handler
+                                                            
+   60 00000008 00000000        DCD              NMI_Handler ;     NMI Handler
+   61 0000000C 00000000        DCD              HardFault_Handler ;     Hard Fa
+                                                            ult Handler
+   62 00000010 00000000        DCD              0           ;     Reserved
+   63 00000014 00000000        DCD              0           ;     Reserved
+   64 00000018 00000000        DCD              0           ;     Reserved
+   65 0000001C 00000000        DCD              0           ;     Reserved
+   66 00000020 00000000        DCD              0           ;     Reserved
+   67 00000024 00000000        DCD              0           ;     Reserved
+   68 00000028 00000000        DCD              0           ;     Reserved
+   69 0000002C 00000000        DCD              SVC_Handler ;     SVCall Handle
+                                                            r
+   70 00000030 00000000        DCD              0           ;     Reserved
+   71 00000034 00000000        DCD              0           ;     Reserved
+   72 00000038 00000000        DCD              PendSV_Handler ;     PendSV Han
+                                                            dler
+   73 0000003C 00000000        DCD              SysTick_Handler ;     SysTick H
+                                                            andler
+   74 00000040         
+   75 00000040         ; External Interrupts
+   76 00000040         ; maximum of 32 External Interrupts are possible
+   77 00000040 00000000        DCD              BOD_IRQHandler ; 0  
+   78 00000044 00000000        DCD              IRC_IRQHandler ; 1  
+   79 00000048 00000000        DCD              PWRWU_IRQHandler ; 2  
+   80 0000004C 00000000        DCD              SRAM_IRQHandler ; 3  
+   81 00000050 00000000        DCD              CLKFAIL_IRQHandler ; 4  
+   82 00000054 00000000        DCD              DEFAULT_IRQHandler ; 5  
+   83 00000058 00000000        DCD              RTC_IRQHandler ; 6  
+   84 0000005C 00000000        DCD              RTC_TAMPER_IRQHandler ; 7  
+   85 00000060 00000000        DCD              WDT_IRQHandler ; 8  
+   86 00000064 00000000        DCD              WWDT_IRQHandler ; 9  
+   87 00000068 00000000        DCD              EINT0_IRQHandler ; 10 
+   88 0000006C 00000000        DCD              EINT1_IRQHandler ; 11 
+   89 00000070 00000000        DCD              EINT2_IRQHandler ; 12 
+   90 00000074 00000000        DCD              EINT3_IRQHandler ; 13 
+   91 00000078 00000000        DCD              EINT4_IRQHandler ; 14 
+   92 0000007C 00000000        DCD              EINT5_IRQHandler ; 15 
+   93 00000080 00000000        DCD              GPA_IRQHandler ; 16 
+   94 00000084 00000000        DCD              GPB_IRQHandler ; 17 
+   95 00000088 00000000        DCD              GPC_IRQHandler ; 18 
+   96 0000008C 00000000        DCD              GPD_IRQHandler ; 19 
+   97 00000090 00000000        DCD              GPE_IRQHandler ; 20 
+   98 00000094 00000000        DCD              GPF_IRQHandler ; 21 
+   99 00000098 00000000        DCD              QSPI0_IRQHandler ; 22 
+  100 0000009C 00000000        DCD              SPI0_IRQHandler ; 23 
+  101 000000A0 00000000        DCD              BRAKE0_IRQHandler ; 24 
+  102 000000A4 00000000        DCD              EPWM0_P0_IRQHandler ; 25 
+  103 000000A8 00000000        DCD              EPWM0_P1_IRQHandler ; 26 
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+  104 000000AC 00000000        DCD              EPWM0_P2_IRQHandler ; 27 
+  105 000000B0 00000000        DCD              BRAKE1_IRQHandler ; 28 
+  106 000000B4 00000000        DCD              EPWM1_P0_IRQHandler ; 29 
+  107 000000B8 00000000        DCD              EPWM1_P1_IRQHandler ; 30 
+  108 000000BC 00000000        DCD              EPWM1_P2_IRQHandler ; 31 
+  109 000000C0 00000000        DCD              TMR0_IRQHandler ; 32 
+  110 000000C4 00000000        DCD              TMR1_IRQHandler ; 33 
+  111 000000C8 00000000        DCD              TMR2_IRQHandler ; 34 
+  112 000000CC 00000000        DCD              TMR3_IRQHandler ; 35 
+  113 000000D0 00000000        DCD              UART0_IRQHandler ; 36 
+  114 000000D4 00000000        DCD              UART1_IRQHandler ; 37 
+  115 000000D8 00000000        DCD              I2C0_IRQHandler ; 38 
+  116 000000DC 00000000        DCD              I2C1_IRQHandler ; 39 
+  117 000000E0 00000000        DCD              PDMA0_IRQHandler ; 40 
+  118 000000E4 00000000        DCD              DAC_IRQHandler ; 41 
+  119 000000E8 00000000        DCD              EADC0_IRQHandler ; 42 
+  120 000000EC 00000000        DCD              EADC1_IRQHandler ; 43 
+  121 000000F0 00000000        DCD              ACMP01_IRQHandler ; 44 
+  122 000000F4 00000000        DCD              DEFAULT_IRQHandler ; 45 
+  123 000000F8 00000000        DCD              EADC2_IRQHandler ; 46 
+  124 000000FC 00000000        DCD              EADC3_IRQHandler ; 47 
+  125 00000100 00000000        DCD              UART2_IRQHandler ; 48 
+  126 00000104 00000000        DCD              UART3_IRQHandler ; 49 
+  127 00000108 00000000        DCD              DEFAULT_IRQHandler ; 50 
+  128 0000010C 00000000        DCD              SPI1_IRQHandler ; 51 
+  129 00000110 00000000        DCD              SPI2_IRQHandler ; 52 
+  130 00000114 00000000        DCD              USBD_IRQHandler ; 53 
+  131 00000118 00000000        DCD              USBH_IRQHandler ; 54 
+  132 0000011C 00000000        DCD              USBOTG_IRQHandler ; 55 
+  133 00000120 00000000        DCD              CAN0_IRQHandler ; 56 
+  134 00000124 00000000        DCD              DEFAULT_IRQHandler ; 57 
+  135 00000128 00000000        DCD              SC0_IRQHandler ; 58 
+  136 0000012C 00000000        DCD              SC1_IRQHandler ; 59 
+  137 00000130 00000000        DCD              SC2_IRQHandler ; 60 
+  138 00000134 00000000        DCD              DEFAULT_IRQHandler ; 61 
+  139 00000138 00000000        DCD              SPI3_IRQHandler ; 62 
+  140 0000013C 00000000        DCD              DEFAULT_IRQHandler ; 63 
+  141 00000140 00000000        DCD              SDH0_IRQHandler ; 64 
+  142 00000144 00000000        DCD              DEFAULT_IRQHandler ; 65 
+  143 00000148 00000000        DCD              DEFAULT_IRQHandler ; 66 
+  144 0000014C 00000000        DCD              DEFAULT_IRQHandler ; 67 
+  145 00000150 00000000        DCD              I2S0_IRQHandler ; 68 
+  146 00000154 00000000        DCD              DEFAULT_IRQHandler ; 69 
+  147 00000158 00000000        DCD              OPA0_IRQHandler ; 70 
+  148 0000015C 00000000        DCD              CRPT_IRQHandler ; 71 
+  149 00000160 00000000        DCD              GPG_IRQHandler ; 72 
+  150 00000164 00000000        DCD              EINT6_IRQHandler ; 73 
+  151 00000168 00000000        DCD              UART4_IRQHandler ; 74 
+  152 0000016C 00000000        DCD              UART5_IRQHandler ; 75 
+  153 00000170 00000000        DCD              USCI0_IRQHandler ; 76 
+  154 00000174 00000000        DCD              USCI1_IRQHandler ; 77 
+  155 00000178 00000000        DCD              BPWM0_IRQHandler ; 78 
+  156 0000017C 00000000        DCD              BPWM1_IRQHandler ; 79 
+  157 00000180 00000000        DCD              DEFAULT_IRQHandler ; 80 
+  158 00000184 00000000        DCD              DEFAULT_IRQHandler ; 81 
+  159 00000188 00000000        DCD              I2C2_IRQHandler ; 82 
+  160 0000018C 00000000        DCD              DEFAULT_IRQHandler ; 83 
+  161 00000190 00000000        DCD              QEI0_IRQHandler ; 84 
+  162 00000194 00000000        DCD              QEI1_IRQHandler ; 85 
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  163 00000198 00000000        DCD              ECAP0_IRQHandler ; 86 
+  164 0000019C 00000000        DCD              ECAP1_IRQHandler ; 87 
+  165 000001A0 00000000        DCD              GPH_IRQHandler ; 88 
+  166 000001A4 00000000        DCD              EINT7_IRQHandler ; 89 
+  167 000001A8 00000000        DCD              DEFAULT_IRQHandler ; 90 
+  168 000001AC 00000000        DCD              DEFAULT_IRQHandler ; 91 
+  169 000001B0 00000000        DCD              DEFAULT_IRQHandler ; 92 
+  170 000001B4 00000000        DCD              DEFAULT_IRQHandler ; 93 
+  171 000001B8 00000000        DCD              DEFAULT_IRQHandler ; 94 
+  172 000001BC 00000000        DCD              DEFAULT_IRQHandler ; 95 
+  173 000001C0 00000000        DCD              DEFAULT_IRQHandler ; 96 
+  174 000001C4 00000000        DCD              DEFAULT_IRQHandler ; 97 
+  175 000001C8 00000000        DCD              PDMA1_IRQHandler ; 98 
+  176 000001CC 00000000        DCD              SCU_IRQHandler ; 99 
+  177 000001D0 00000000        DCD              LCD_IRQHandler ; 100
+  178 000001D4 00000000        DCD              TRNG_IRQHandler ; 101
+  179 000001D8 00000000        DCD              DEFAULT_IRQHandler ; 102
+  180 000001DC 00000000        DCD              DEFAULT_IRQHandler ; 103
+  181 000001E0 00000000        DCD              DEFAULT_IRQHandler ; 104
+  182 000001E4 00000000        DCD              DEFAULT_IRQHandler ; 105
+  183 000001E8 00000000        DCD              DEFAULT_IRQHandler ; 106
+  184 000001EC 00000000        DCD              DEFAULT_IRQHandler ; 107
+  185 000001F0 00000000        DCD              DEFAULT_IRQHandler ; 108
+  186 000001F4 00000000        DCD              KS_IRQHandler ; 109
+  187 000001F8 00000000        DCD              TAMPER_IRQHandler ; 110
+  188 000001FC 00000000        DCD              EWDT_IRQHandler ; 111
+  189 00000200 00000000        DCD              EWWDT_IRQHandler ; 112
+  190 00000204 00000000        DCD              NS_ISP_IRQHandler ; 113
+  191 00000208 00000000        DCD              TMR4_IRQHandler ; 114
+  192 0000020C 00000000        DCD              TMR5_IRQHandler ; 115
+  193 00000210         
+  194 00000210         
+  195 00000210         g_pfnVectors_End
+  196 00000210         
+  197 00000210 00000210 
+                       g_pfnVectors_Size
+                               EQU              g_pfnVectors_End - g_pfnVectors
+  198 00000210         
+  199 00000210                 AREA             |.text|, CODE, READONLY
+  200 00000000         
+  201 00000000         
+  202 00000000         ; Reset Handler
+  203 00000000         
+  204 00000000         Reset_Handler
+                               PROC
+  205 00000000                 EXPORT           Reset_Handler             [WEAK
+]
+  206 00000000                 IMPORT           SystemInit
+  207 00000000                 IMPORT           __main
+  208 00000000         
+  209 00000000 4678            MOV              R0, R15
+  210 00000002 00C0            LSLS             R0, R0, #3
+  211 00000004 D415            BMI              GotoSystemInit
+  212 00000006         
+  213 00000006 481C            LDR              R0, =0x40000100
+  214 00000008 F240 0159       LDR              R1, =0x59
+  215 0000000C 6001            STR              R1, [R0]
+  216 0000000E F240 0116       LDR              R1, =0x16
+  217 00000012 6001            STR              R1, [R0]
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  218 00000014 F240 0188       LDR              R1, =0x88
+  219 00000018 6001            STR              R1, [R0]
+  220 0000001A         
+  221 0000001A 4818            LDR              R0, =0x400001f4
+  222 0000001C 4918            LDR              R1, =0xffffffff
+  223 0000001E 6001            STR              R1, [R0]
+  224 00000020         
+  225 00000020 4818            LDR              R0, =0x400000dC
+  226 00000022 F240 0100       LDR              R1, =0x0
+  227 00000026 6001            STR              R1, [R0]
+  228 00000028         
+  229 00000028 4817            LDR              R0, =0x40000200
+  230 0000002A 6841            LDR              R1, [R0,#0x4]
+  231 0000002C         
+  232 0000002C 4A17            LDR              R2, =0xfff02000
+  233 0000002E         
+  234 0000002E 4311            ORRS             R1, R1, R2
+  235 00000030 6041            STR              R1, [R0,#0x4]
+  236 00000032         
+  237 00000032         GotoSystemInit
+  238 00000032         
+  239 00000032 4811            LDR              R0, =0x40000100
+  240 00000034 2100            MOVS             R1, #0
+  241 00000036 6001            STR              R1, [R0]
+  242 00000038         
+  243 00000038 4815            LDR              R0, =SystemInit
+  244 0000003A 4780            BLX              R0
+  245 0000003C 4815            LDR              R0, =__main
+  246 0000003E 4700            BX               R0
+  247 00000040                 ENDP
+  248 00000040         
+  249 00000040         
+  250 00000040         ; Dummy Exception Handlers (infinite loops which can be 
+                       modified)
+  251 00000040         
+  252 00000040         NMI_Handler
+                               PROC
+  253 00000040                 EXPORT           NMI_Handler               [WEAK
+]
+  254 00000040 E7FE            B                .
+  255 00000042                 ENDP
+  257 00000042         HardFault_Handler
+                               PROC
+  258 00000042                 EXPORT           HardFault_Handler         [WEAK
+]
+  259 00000042 E7FE            B                .
+  260 00000044                 ENDP
+  262 00000044         ProcessHardFaultx
+                               PROC
+  263 00000044                 EXPORT           ProcessHardFaultx          [WEA
+K]
+  264 00000044 E7FE            B                .
+  265 00000046                 ENDP
+  266 00000046         SVC_Handler
+                               PROC
+  267 00000046                 EXPORT           SVC_Handler               [WEAK
+]
+  268 00000046 E7FE            B                .
+  269 00000048                 ENDP
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+  270 00000048         PendSV_Handler
+                               PROC
+  271 00000048                 EXPORT           PendSV_Handler            [WEAK
+]
+  272 00000048 E7FE            B                .
+  273 0000004A                 ENDP
+  274 0000004A         SysTick_Handler
+                               PROC
+  275 0000004A                 EXPORT           SysTick_Handler           [WEAK
+]
+  276 0000004A E7FE            B                .
+  277 0000004C                 ENDP
+  278 0000004C         
+  279 0000004C         Default_Handler
+                               PROC
+  280 0000004C         
+  281 0000004C                 EXPORT           BOD_IRQHandler        [WEAK] 
+                                                            ; 0  
+  282 0000004C                 EXPORT           IRC_IRQHandler            [WEAK
+] 
+                                                            ; 1  
+  283 0000004C                 EXPORT           PWRWU_IRQHandler          [WEAK
+] 
+                                                            ; 2  
+  284 0000004C                 EXPORT           SRAM_IRQHandler           [WEAK
+] 
+                                                            ; 3  
+  285 0000004C                 EXPORT           CLKFAIL_IRQHandler        [WEAK
+] 
+                                                            ; 4  
+  286 0000004C         ;EXPORT  0                         [WEAK] ; 5  
+  287 0000004C                 EXPORT           RTC_IRQHandler            [WEAK
+] 
+                                                            ; 6  
+  288 0000004C                 EXPORT           RTC_TAMPER_IRQHandler     [WEAK
+] 
+                                                            ; 7  
+  289 0000004C                 EXPORT           WDT_IRQHandler            [WEAK
+] 
+                                                            ; 8  
+  290 0000004C                 EXPORT           WWDT_IRQHandler           [WEAK
+] 
+                                                            ; 9  
+  291 0000004C                 EXPORT           EINT0_IRQHandler          [WEAK
+] 
+                                                            ; 10 
+  292 0000004C                 EXPORT           EINT1_IRQHandler          [WEAK
+] 
+                                                            ; 11 
+  293 0000004C                 EXPORT           EINT2_IRQHandler          [WEAK
+] 
+                                                            ; 12 
+  294 0000004C                 EXPORT           EINT3_IRQHandler          [WEAK
+] 
+                                                            ; 13 
+  295 0000004C                 EXPORT           EINT4_IRQHandler          [WEAK
+] 
+                                                            ; 14 
+  296 0000004C                 EXPORT           EINT5_IRQHandler          [WEAK
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+] 
+                                                            ; 15 
+  297 0000004C                 EXPORT           GPA_IRQHandler            [WEAK
+] 
+                                                            ; 16 
+  298 0000004C                 EXPORT           GPB_IRQHandler            [WEAK
+] 
+                                                            ; 17 
+  299 0000004C                 EXPORT           GPC_IRQHandler            [WEAK
+] 
+                                                            ; 18 
+  300 0000004C                 EXPORT           GPD_IRQHandler            [WEAK
+] 
+                                                            ; 19 
+  301 0000004C                 EXPORT           GPE_IRQHandler            [WEAK
+] 
+                                                            ; 20 
+  302 0000004C                 EXPORT           GPF_IRQHandler            [WEAK
+] 
+                                                            ; 21 
+  303 0000004C                 EXPORT           QSPI0_IRQHandler          [WEAK
+] 
+                                                            ; 22 
+  304 0000004C                 EXPORT           SPI0_IRQHandler           [WEAK
+] 
+                                                            ; 23 
+  305 0000004C                 EXPORT           BRAKE0_IRQHandler         [WEAK
+] 
+                                                            ; 24 
+  306 0000004C                 EXPORT           EPWM0_P0_IRQHandler       [WEAK
+] 
+                                                            ; 25 
+  307 0000004C                 EXPORT           EPWM0_P1_IRQHandler       [WEAK
+] 
+                                                            ; 26 
+  308 0000004C                 EXPORT           EPWM0_P2_IRQHandler       [WEAK
+] 
+                                                            ; 27 
+  309 0000004C                 EXPORT           BRAKE1_IRQHandler         [WEAK
+] 
+                                                            ; 28 
+  310 0000004C                 EXPORT           EPWM1_P0_IRQHandler       [WEAK
+] 
+                                                            ; 29 
+  311 0000004C                 EXPORT           EPWM1_P1_IRQHandler       [WEAK
+] 
+                                                            ; 30 
+  312 0000004C                 EXPORT           EPWM1_P2_IRQHandler       [WEAK
+] 
+                                                            ; 31 
+  313 0000004C                 EXPORT           TMR0_IRQHandler           [WEAK
+] 
+                                                            ; 32 
+  314 0000004C                 EXPORT           TMR1_IRQHandler           [WEAK
+] 
+                                                            ; 33 
+  315 0000004C                 EXPORT           TMR2_IRQHandler           [WEAK
+] 
+                                                            ; 34 
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+  316 0000004C                 EXPORT           TMR3_IRQHandler           [WEAK
+] 
+                                                            ; 35 
+  317 0000004C                 EXPORT           UART0_IRQHandler          [WEAK
+] 
+                                                            ; 36 
+  318 0000004C                 EXPORT           UART1_IRQHandler          [WEAK
+] 
+                                                            ; 37 
+  319 0000004C                 EXPORT           I2C0_IRQHandler           [WEAK
+] 
+                                                            ; 38 
+  320 0000004C                 EXPORT           I2C1_IRQHandler           [WEAK
+] 
+                                                            ; 39 
+  321 0000004C                 EXPORT           PDMA0_IRQHandler          [WEAK
+] 
+                                                            ; 40 
+  322 0000004C                 EXPORT           DAC_IRQHandler            [WEAK
+] 
+                                                            ; 41 
+  323 0000004C                 EXPORT           EADC0_IRQHandler          [WEAK
+] 
+                                                            ; 42 
+  324 0000004C                 EXPORT           EADC1_IRQHandler          [WEAK
+] 
+                                                            ; 43 
+  325 0000004C                 EXPORT           ACMP01_IRQHandler         [WEAK
+] 
+                                                            ; 44 
+  326 0000004C         ;EXPORT  0                         [WEAK] ; 45 
+  327 0000004C                 EXPORT           EADC2_IRQHandler          [WEAK
+] 
+                                                            ; 46 
+  328 0000004C                 EXPORT           EADC3_IRQHandler          [WEAK
+] 
+                                                            ; 47 
+  329 0000004C                 EXPORT           UART2_IRQHandler          [WEAK
+] 
+                                                            ; 48 
+  330 0000004C                 EXPORT           UART3_IRQHandler          [WEAK
+] 
+                                                            ; 49 
+  331 0000004C         ;EXPORT  0                         [WEAK] ; 50 
+  332 0000004C                 EXPORT           SPI1_IRQHandler           [WEAK
+] 
+                                                            ; 51 
+  333 0000004C                 EXPORT           SPI2_IRQHandler           [WEAK
+] 
+                                                            ; 52 
+  334 0000004C                 EXPORT           USBD_IRQHandler           [WEAK
+] 
+                                                            ; 53 
+  335 0000004C                 EXPORT           USBH_IRQHandler           [WEAK
+] 
+                                                            ; 54 
+  336 0000004C                 EXPORT           USBOTG_IRQHandler         [WEAK
+] 
+                                                            ; 55 
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+  337 0000004C                 EXPORT           CAN0_IRQHandler           [WEAK
+] 
+                                                            ; 56 
+  338 0000004C                 EXPORT           CAN1_IRQHandler           [WEAK
+] 
+                                                            ; 57 
+  339 0000004C                 EXPORT           SC0_IRQHandler            [WEAK
+] 
+                                                            ; 58 
+  340 0000004C                 EXPORT           SC1_IRQHandler            [WEAK
+] 
+                                                            ; 59 
+  341 0000004C                 EXPORT           SC2_IRQHandler            [WEAK
+] 
+                                                            ; 60 
+  342 0000004C                 EXPORT           SC3_IRQHandler            [WEAK
+] 
+                                                            ; 61 
+  343 0000004C                 EXPORT           SPI3_IRQHandler           [WEAK
+] 
+                                                            ; 62 
+  344 0000004C         ;EXPORT  0                         [WEAK] ; 63 
+  345 0000004C                 EXPORT           SDH0_IRQHandler           [WEAK
+] 
+                                                            ; 64 
+  346 0000004C         ;EXPORT  0                         [WEAK] ; 65 
+  347 0000004C         ;EXPORT  0                         [WEAK] ; 66 
+  348 0000004C         ;EXPORT  0                         [WEAK] ; 67 
+  349 0000004C                 EXPORT           I2S0_IRQHandler           [WEAK
+] 
+                                                            ; 68 
+  350 0000004C         ;EXPORT  0                         [WEAK] ; 69 
+  351 0000004C                 EXPORT           OPA0_IRQHandler           [WEAK
+] 
+                                                            ; 70 
+  352 0000004C                 EXPORT           CRPT_IRQHandler           [WEAK
+] 
+                                                            ; 71 
+  353 0000004C                 EXPORT           GPG_IRQHandler            [WEAK
+] 
+                                                            ; 72 
+  354 0000004C                 EXPORT           EINT6_IRQHandler          [WEAK
+] 
+                                                            ; 73 
+  355 0000004C                 EXPORT           UART4_IRQHandler          [WEAK
+] 
+                                                            ; 74 
+  356 0000004C                 EXPORT           UART5_IRQHandler          [WEAK
+] 
+                                                            ; 75 
+  357 0000004C                 EXPORT           USCI0_IRQHandler          [WEAK
+] 
+                                                            ; 76 
+  358 0000004C                 EXPORT           USCI1_IRQHandler          [WEAK
+] 
+                                                            ; 77 
+  359 0000004C                 EXPORT           BPWM0_IRQHandler          [WEAK
+] 
+                                                            ; 78 
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+  360 0000004C                 EXPORT           BPWM1_IRQHandler          [WEAK
+] 
+                                                            ; 79 
+  361 0000004C         ;EXPORT  0                         [WEAK] ; 80 
+  362 0000004C         ;EXPORT  0                         [WEAK] ; 81 
+  363 0000004C                 EXPORT           I2C2_IRQHandler           [WEAK
+] 
+                                                            ; 82 
+  364 0000004C         ;EXPORT  0                         [WEAK] ; 83 
+  365 0000004C                 EXPORT           QEI0_IRQHandler           [WEAK
+] 
+                                                            ; 84 
+  366 0000004C                 EXPORT           QEI1_IRQHandler           [WEAK
+] 
+                                                            ; 85 
+  367 0000004C                 EXPORT           ECAP0_IRQHandler          [WEAK
+] 
+                                                            ; 86 
+  368 0000004C                 EXPORT           ECAP1_IRQHandler          [WEAK
+] 
+                                                            ; 87 
+  369 0000004C                 EXPORT           GPH_IRQHandler            [WEAK
+] 
+                                                            ; 88 
+  370 0000004C                 EXPORT           EINT7_IRQHandler          [WEAK
+] 
+                                                            ; 89 
+  371 0000004C                 EXPORT           SDH1_IRQHandler           [WEAK
+] 
+                                                            ; 90 
+  372 0000004C         ;EXPORT  0                         [WEAK] ; 91 
+  373 0000004C         ;EXPORT  USBH_IRQHandler           [WEAK] ; 92 
+  374 0000004C         ;EXPORT  0                         [WEAK] ; 93 
+  375 0000004C         ;EXPORT  0                         [WEAK] ; 94 
+  376 0000004C         ;EXPORT  0                         [WEAK] ; 95 
+  377 0000004C         ;EXPORT  0                         [WEAK] ; 96 
+  378 0000004C         ;EXPORT  0                         [WEAK] ; 97 
+  379 0000004C                 EXPORT           PDMA1_IRQHandler          [WEAK
+] 
+                                                            ; 98 
+  380 0000004C         ;EXPORT  SCU_IRQHandler            [WEAK] ; 99 
+  381 0000004C                 EXPORT           LCD_IRQHandler            [WEAK
+] 
+                                                            ; 100 
+  382 0000004C                 EXPORT           TRNG_IRQHandler           [WEAK
+] 
+                                                            ; 101
+  383 0000004C         ;EXPORT  0                         [WEAK] ; 102
+  384 0000004C         ;EXPORT  0                         [WEAK] ; 103
+  385 0000004C         ;EXPORT  0                         [WEAK] ; 104
+  386 0000004C         ;EXPORT  0                         [WEAK] ; 105
+  387 0000004C         ;EXPORT  0                         [WEAK] ; 106
+  388 0000004C         ;EXPORT  0                         [WEAK] ; 107
+  389 0000004C         ;EXPORT  0                         [WEAK] ; 108
+  390 0000004C                 EXPORT           KS_IRQHandler             [WEAK
+] 
+                                                            ; 109
+  391 0000004C                 EXPORT           TAMPER_IRQHandler         [WEAK
+] 
+
+
+
+ARM Macro Assembler    Page 11 
+
+
+                                                            ; 110
+  392 0000004C                 EXPORT           EWDT_IRQHandler           [WEAK
+] 
+                                                            ; 111
+  393 0000004C                 EXPORT           EWWDT_IRQHandler          [WEAK
+] 
+                                                            ; 112
+  394 0000004C                 EXPORT           NS_ISP_IRQHandler         [WEAK
+] 
+                                                            ; 113
+  395 0000004C                 EXPORT           TMR4_IRQHandler           [WEAK
+] 
+                                                            ; 114 
+  396 0000004C                 EXPORT           TMR5_IRQHandler           [WEAK
+] 
+                                                            ; 115 
+  397 0000004C         
+  398 0000004C         
+  399 0000004C                 EXPORT           DEFAULT_IRQHandler    [WEAK]
+  400 0000004C         
+  401 0000004C         BOD_IRQHandler                       ; 0  
+  402 0000004C         IRC_IRQHandler                       ; 1  
+  403 0000004C         PWRWU_IRQHandler                     ; 2  
+  404 0000004C         SRAM_IRQHandler                      ; 3  
+  405 0000004C         CLKFAIL_IRQHandler                   ; 4  
+  406 0000004C         ;0                          ; 5  
+  407 0000004C         RTC_IRQHandler                       ; 6  
+  408 0000004C         RTC_TAMPER_IRQHandler                ; 7  
+  409 0000004C         WDT_IRQHandler                       ; 8  
+  410 0000004C         WWDT_IRQHandler                      ; 9  
+  411 0000004C         EINT0_IRQHandler                     ; 10 
+  412 0000004C         EINT1_IRQHandler                     ; 11 
+  413 0000004C         EINT2_IRQHandler                     ; 12 
+  414 0000004C         EINT3_IRQHandler                     ; 13 
+  415 0000004C         EINT4_IRQHandler                     ; 14 
+  416 0000004C         EINT5_IRQHandler                     ; 15 
+  417 0000004C         GPA_IRQHandler                       ; 16 
+  418 0000004C         GPB_IRQHandler                       ; 17 
+  419 0000004C         GPC_IRQHandler                       ; 18 
+  420 0000004C         GPD_IRQHandler                       ; 19 
+  421 0000004C         GPE_IRQHandler                       ; 20 
+  422 0000004C         GPF_IRQHandler                       ; 21 
+  423 0000004C         QSPI0_IRQHandler                     ; 22 
+  424 0000004C         SPI0_IRQHandler                      ; 23 
+  425 0000004C         BRAKE0_IRQHandler                    ; 24 
+  426 0000004C         EPWM0_P0_IRQHandler                  ; 25 
+  427 0000004C         EPWM0_P1_IRQHandler                  ; 26 
+  428 0000004C         EPWM0_P2_IRQHandler                  ; 27 
+  429 0000004C         BRAKE1_IRQHandler                    ; 28 
+  430 0000004C         EPWM1_P0_IRQHandler                  ; 29 
+  431 0000004C         EPWM1_P1_IRQHandler                  ; 30 
+  432 0000004C         EPWM1_P2_IRQHandler                  ; 31 
+  433 0000004C         TMR0_IRQHandler                      ; 32 
+  434 0000004C         TMR1_IRQHandler                      ; 33 
+  435 0000004C         TMR2_IRQHandler                      ; 34 
+  436 0000004C         TMR3_IRQHandler                      ; 35 
+  437 0000004C         UART0_IRQHandler                     ; 36 
+  438 0000004C         UART1_IRQHandler                     ; 37 
+  439 0000004C         I2C0_IRQHandler                      ; 38 
+
+
+
+ARM Macro Assembler    Page 12 
+
+
+  440 0000004C         I2C1_IRQHandler                      ; 39 
+  441 0000004C         PDMA0_IRQHandler                     ; 40 
+  442 0000004C         DAC_IRQHandler                       ; 41 
+  443 0000004C         EADC0_IRQHandler                     ; 42 
+  444 0000004C         EADC1_IRQHandler                     ; 43 
+  445 0000004C         ACMP01_IRQHandler                    ; 44 
+  446 0000004C         ;0                          ; 45 
+  447 0000004C         EADC2_IRQHandler                     ; 46 
+  448 0000004C         EADC3_IRQHandler                     ; 47 
+  449 0000004C         UART2_IRQHandler                     ; 48 
+  450 0000004C         UART3_IRQHandler                     ; 49 
+  451 0000004C         ;0                          ; 50 
+  452 0000004C         SPI1_IRQHandler                      ; 51 
+  453 0000004C         SPI2_IRQHandler                      ; 52 
+  454 0000004C         USBD_IRQHandler                      ; 53 
+  455 0000004C         USBH_IRQHandler                      ; 54 
+  456 0000004C         USBOTG_IRQHandler                    ; 55 
+  457 0000004C         CAN0_IRQHandler                      ; 56 
+  458 0000004C         CAN1_IRQHandler                      ; 57 
+  459 0000004C         SC0_IRQHandler                       ; 58 
+  460 0000004C         SC1_IRQHandler                       ; 59 
+  461 0000004C         SC2_IRQHandler                       ; 60 
+  462 0000004C         SC3_IRQHandler                       ; 61 
+  463 0000004C         SPI3_IRQHandler                      ; 62 
+  464 0000004C         ;0                          ; 63 
+  465 0000004C         SDH0_IRQHandler                      ; 64 
+  466 0000004C         ;0                          ; 65 
+  467 0000004C         ;0                          ; 66 
+  468 0000004C         ;0                          ; 67 
+  469 0000004C         I2S0_IRQHandler                      ; 68 
+  470 0000004C         ;0                          ; 69 
+  471 0000004C         OPA0_IRQHandler                      ; 70 
+  472 0000004C         CRPT_IRQHandler                      ; 71 
+  473 0000004C         GPG_IRQHandler                       ; 72 
+  474 0000004C         EINT6_IRQHandler                     ; 73 
+  475 0000004C         UART4_IRQHandler                     ; 74 
+  476 0000004C         UART5_IRQHandler                     ; 75 
+  477 0000004C         USCI0_IRQHandler                     ; 76 
+  478 0000004C         USCI1_IRQHandler                     ; 77 
+  479 0000004C         BPWM0_IRQHandler                     ; 78 
+  480 0000004C         BPWM1_IRQHandler                     ; 79 
+  481 0000004C         ;0                          ; 80 
+  482 0000004C         ;0                          ; 81 
+  483 0000004C         I2C2_IRQHandler                      ; 82 
+  484 0000004C         ;0                          ; 83 
+  485 0000004C         QEI0_IRQHandler                      ; 84 
+  486 0000004C         QEI1_IRQHandler                      ; 85 
+  487 0000004C         ECAP0_IRQHandler                     ; 86 
+  488 0000004C         ECAP1_IRQHandler                     ; 87 
+  489 0000004C         GPH_IRQHandler                       ; 88 
+  490 0000004C         EINT7_IRQHandler                     ; 89 
+  491 0000004C         SDH1_IRQHandler                      ; 90 
+  492 0000004C         ;0                          ; 91 
+  493 0000004C         ;USBH_IRQHandler            ; 92 
+  494 0000004C         ;0                          ; 93 
+  495 0000004C         ;0                          ; 94 
+  496 0000004C         ;0                          ; 95 
+  497 0000004C         ;0                          ; 96 
+  498 0000004C         ;0                          ; 97 
+
+
+
+ARM Macro Assembler    Page 13 
+
+
+  499 0000004C         PDMA1_IRQHandler                     ; 98 
+  500 0000004C         ;SCU_IRQHandler            ; 99 
+  501 0000004C         LCD_IRQHandler                       ; 100 
+  502 0000004C         TRNG_IRQHandler                      ; 101
+  503 0000004C         ;0                         ; 102
+  504 0000004C         ;0                         ; 103
+  505 0000004C         ;0                         ; 104
+  506 0000004C         ;0                         ; 105
+  507 0000004C         ;0                         ; 106
+  508 0000004C         ;0                         ; 107
+  509 0000004C         ;0                         ; 108
+  510 0000004C         KS_IRQHandler                        ; 109
+  511 0000004C         TAMPER_IRQHandler                    ; 110
+  512 0000004C         EWDT_IRQHandler                      ; 111
+  513 0000004C         EWWDT_IRQHandler                     ; 112
+  514 0000004C         NS_ISP_IRQHandler                    ; 113
+  515 0000004C         TMR4_IRQHandler                      ; 114 
+  516 0000004C         TMR5_IRQHandler                      ; 115 
+  517 0000004C         
+  518 0000004C         DEFAULT_IRQHandler
+  519 0000004C E7FE            B                .
+  520 0000004E                 ENDP
+  521 0000004E         
+  522 0000004E 00 00           ALIGN
+  523 00000050         
+  524 00000050         
+  525 00000050         ; User Initial Stack & Heap
+  526 00000050         
+  527 00000050                 IF               :DEF:__MICROLIB
+  534 00000050         
+  535 00000050                 IMPORT           __use_two_region_memory
+  536 00000050                 EXPORT           __user_initial_stackheap
+  537 00000050         
+  538 00000050         __user_initial_stackheap
+                               PROC
+  539 00000050 4811            LDR              R0, = Heap_Mem
+  540 00000052 4912            LDR              R1, = (Stack_Mem + Stack_Size)
+  541 00000054 4A12            LDR              R2, = (Heap_Mem +  Heap_Size)
+  542 00000056 4B13            LDR              R3, = Stack_Mem
+  543 00000058 4770            BX               LR
+  544 0000005A                 ENDP
+  545 0000005A         
+  546 0000005A         
+  547 0000005A 00 00           ALIGN
+  548 0000005C         
+  549 0000005C                 ENDIF
+  550 0000005C         
+  551 0000005C         
+  552 0000005C         __PC    PROC
+  553 0000005C                 EXPORT           __PC
+  554 0000005C         
+  555 0000005C 4670            MOV              r0, lr
+  556 0000005E 47F0            BLX              lr
+  557 00000060                 ALIGN
+  558 00000060         
+  559 00000060                 ENDP
+  560 00000060         
+  561 00000060         SPD_Return
+                               PROC
+
+
+
+ARM Macro Assembler    Page 14 
+
+
+  562 00000060                 EXPORT           SPD_Return
+  563 00000060         
+  564 00000060 4811            LDR              r0, =0x400002c0 ; SPD_VTOR
+  565 00000062 4912            LDR              r1, =0x20010000 ; New VTOR
+  566 00000064 6001            STR              r1, [r0]
+  567 00000066 4668            MOV              r0, sp
+  568 00000068 6008            STR              r0, [r1]
+  569 0000006A 4811            LDR              r0, =SPD_Next
+  570 0000006C 6048            STR              r0, [r1,#4]
+  571 0000006E BF30            WFI
+  572 00000070 E7FE            B                .
+  573 00000072         ;LDR     SPD_Next
+  574 00000072         SPD_Next
+  575 00000072 BF00            NOP
+  576 00000074 BF00            NOP
+  577 00000076 BF00            NOP
+  578 00000078         
+  579 00000078                 ENDP
+  580 00000078         
+  581 00000078         
+  582 00000078                 END
+              40000100 
+              400001F4 
+              FFFFFFFF 
+              400000DC 
+              40000200 
+              FFF02000 
+              00000000 
+              00000000 
+              00000000 
+              00002000 
+              00001000 
+              00000000 
+              400002C0 
+              20010000 
+              00000000 
+Command Line: --debug --no_warn --xref --diag_suppress=9931 --cpu=Cortex-M23 --
+depend=.\build\keil5\startup_m2354.d -o.\build\keil5\startup_m2354.o -IE:\Keil_
+v5\ARM\PACK\Nuvoton\NuMicro_DFP\1.3.12\Device\M2354\Include -IE:\Keil_v5\ARM\CM
+SIS\Include --predefine="__UVISION_VERSION SETA 534" --list=.\build\keil5\start
+up_m2354.lst ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\startup_M2354.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.STACK 00000000
+
+Symbol: .STACK
+   Definitions
+      At line 26 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      None
+Comment: .STACK unused
+Stack_Mem 00000000
+
+Symbol: Stack_Mem
+   Definitions
+      At line 27 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 540 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 542 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+__initial_sp 00002000
+
+Symbol: __initial_sp
+   Definitions
+      At line 28 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 58 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+Comment: __initial_sp used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+HEAP 00000000
+
+Symbol: HEAP
+   Definitions
+      At line 39 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      None
+Comment: HEAP unused
+Heap_Mem 00000000
+
+Symbol: Heap_Mem
+   Definitions
+      At line 41 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 539 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 541 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+__heap_base 00000000
+
+Symbol: __heap_base
+   Definitions
+      At line 40 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      None
+Comment: __heap_base unused
+__heap_limit 00001000
+
+Symbol: __heap_limit
+   Definitions
+      At line 42 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      None
+Comment: __heap_limit unused
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 51 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      None
+Comment: RESET unused
+g_pfnVectors 00000000
+
+Symbol: g_pfnVectors
+   Definitions
+      At line 58 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 52 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 197 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+g_pfnVectors_End 00000210
+
+Symbol: g_pfnVectors_End
+   Definitions
+      At line 195 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 53 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 197 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 199 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      None
+Comment: .text unused
+ACMP01_IRQHandler 0000004C
+
+Symbol: ACMP01_IRQHandler
+   Definitions
+      At line 445 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 121 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 325 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+BOD_IRQHandler 0000004C
+
+Symbol: BOD_IRQHandler
+   Definitions
+      At line 401 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 77 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 281 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+BPWM0_IRQHandler 0000004C
+
+Symbol: BPWM0_IRQHandler
+   Definitions
+      At line 479 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 155 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 359 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+BPWM1_IRQHandler 0000004C
+
+Symbol: BPWM1_IRQHandler
+   Definitions
+      At line 480 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 156 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 360 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+BRAKE0_IRQHandler 0000004C
+
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: BRAKE0_IRQHandler
+   Definitions
+      At line 425 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 101 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 305 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+BRAKE1_IRQHandler 0000004C
+
+Symbol: BRAKE1_IRQHandler
+   Definitions
+      At line 429 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 105 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 309 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+CAN0_IRQHandler 0000004C
+
+Symbol: CAN0_IRQHandler
+   Definitions
+      At line 457 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 133 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 337 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+CAN1_IRQHandler 0000004C
+
+Symbol: CAN1_IRQHandler
+   Definitions
+      At line 458 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 338 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: CAN1_IRQHandler used once
+CLKFAIL_IRQHandler 0000004C
+
+Symbol: CLKFAIL_IRQHandler
+   Definitions
+      At line 405 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 81 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 285 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+CRPT_IRQHandler 0000004C
+
+Symbol: CRPT_IRQHandler
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 472 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 148 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 352 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+DAC_IRQHandler 0000004C
+
+Symbol: DAC_IRQHandler
+   Definitions
+      At line 442 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 118 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 322 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+DEFAULT_IRQHandler 0000004C
+
+Symbol: DEFAULT_IRQHandler
+   Definitions
+      At line 518 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 82 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 122 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 127 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 134 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 138 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 140 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 142 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 143 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 144 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 146 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 157 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 158 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 160 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 167 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 168 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 169 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+      At line 170 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 171 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 172 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 173 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 174 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 179 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 180 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 181 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 182 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 183 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 184 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 185 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 399 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+Default_Handler 0000004C
+
+Symbol: Default_Handler
+   Definitions
+      At line 279 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      None
+Comment: Default_Handler unused
+EADC0_IRQHandler 0000004C
+
+Symbol: EADC0_IRQHandler
+   Definitions
+      At line 443 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 119 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 323 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EADC1_IRQHandler 0000004C
+
+Symbol: EADC1_IRQHandler
+   Definitions
+      At line 444 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 120 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 324 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+
+EADC2_IRQHandler 0000004C
+
+Symbol: EADC2_IRQHandler
+   Definitions
+      At line 447 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 123 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 327 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EADC3_IRQHandler 0000004C
+
+Symbol: EADC3_IRQHandler
+   Definitions
+      At line 448 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 124 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 328 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+ECAP0_IRQHandler 0000004C
+
+Symbol: ECAP0_IRQHandler
+   Definitions
+      At line 487 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 163 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 367 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+ECAP1_IRQHandler 0000004C
+
+Symbol: ECAP1_IRQHandler
+   Definitions
+      At line 488 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 164 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 368 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT0_IRQHandler 0000004C
+
+Symbol: EINT0_IRQHandler
+   Definitions
+      At line 411 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 87 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 291 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT1_IRQHandler 0000004C
+
+Symbol: EINT1_IRQHandler
+   Definitions
+      At line 412 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 88 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 292 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT2_IRQHandler 0000004C
+
+Symbol: EINT2_IRQHandler
+   Definitions
+      At line 413 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 89 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 293 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT3_IRQHandler 0000004C
+
+Symbol: EINT3_IRQHandler
+   Definitions
+      At line 414 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 90 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 294 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT4_IRQHandler 0000004C
+
+Symbol: EINT4_IRQHandler
+   Definitions
+      At line 415 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 91 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 295 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT5_IRQHandler 0000004C
+
+Symbol: EINT5_IRQHandler
+   Definitions
+      At line 416 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 92 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Relocatable symbols
+
+rtup_M2354.s
+      At line 296 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT6_IRQHandler 0000004C
+
+Symbol: EINT6_IRQHandler
+   Definitions
+      At line 474 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 150 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 354 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EINT7_IRQHandler 0000004C
+
+Symbol: EINT7_IRQHandler
+   Definitions
+      At line 490 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 166 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 370 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM0_P0_IRQHandler 0000004C
+
+Symbol: EPWM0_P0_IRQHandler
+   Definitions
+      At line 426 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 102 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 306 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM0_P1_IRQHandler 0000004C
+
+Symbol: EPWM0_P1_IRQHandler
+   Definitions
+      At line 427 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 103 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 307 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM0_P2_IRQHandler 0000004C
+
+Symbol: EPWM0_P2_IRQHandler
+   Definitions
+      At line 428 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 104 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 308 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM1_P0_IRQHandler 0000004C
+
+Symbol: EPWM1_P0_IRQHandler
+   Definitions
+      At line 430 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 106 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 310 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM1_P1_IRQHandler 0000004C
+
+Symbol: EPWM1_P1_IRQHandler
+   Definitions
+      At line 431 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 107 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 311 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EPWM1_P2_IRQHandler 0000004C
+
+Symbol: EPWM1_P2_IRQHandler
+   Definitions
+      At line 432 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 108 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 312 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EWDT_IRQHandler 0000004C
+
+Symbol: EWDT_IRQHandler
+   Definitions
+      At line 512 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 188 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 392 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+EWWDT_IRQHandler 0000004C
+
+Symbol: EWWDT_IRQHandler
+   Definitions
+      At line 513 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 189 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 393 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPA_IRQHandler 0000004C
+
+Symbol: GPA_IRQHandler
+   Definitions
+      At line 417 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 93 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 297 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPB_IRQHandler 0000004C
+
+Symbol: GPB_IRQHandler
+   Definitions
+      At line 418 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 94 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 298 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPC_IRQHandler 0000004C
+
+Symbol: GPC_IRQHandler
+   Definitions
+      At line 419 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 95 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 299 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPD_IRQHandler 0000004C
+
+Symbol: GPD_IRQHandler
+   Definitions
+      At line 420 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 96 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 300 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPE_IRQHandler 0000004C
+
+Symbol: GPE_IRQHandler
+   Definitions
+      At line 421 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+   Uses
+      At line 97 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 301 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPF_IRQHandler 0000004C
+
+Symbol: GPF_IRQHandler
+   Definitions
+      At line 422 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 98 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 302 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPG_IRQHandler 0000004C
+
+Symbol: GPG_IRQHandler
+   Definitions
+      At line 473 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 149 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 353 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GPH_IRQHandler 0000004C
+
+Symbol: GPH_IRQHandler
+   Definitions
+      At line 489 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 165 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 369 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+GotoSystemInit 00000032
+
+Symbol: GotoSystemInit
+   Definitions
+      At line 237 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 211 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: GotoSystemInit used once
+HardFault_Handler 00000042
+
+Symbol: HardFault_Handler
+   Definitions
+      At line 257 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+
+
+ARM Macro Assembler    Page 11 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 61 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 258 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+I2C0_IRQHandler 0000004C
+
+Symbol: I2C0_IRQHandler
+   Definitions
+      At line 439 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 115 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 319 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+I2C1_IRQHandler 0000004C
+
+Symbol: I2C1_IRQHandler
+   Definitions
+      At line 440 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 116 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 320 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+I2C2_IRQHandler 0000004C
+
+Symbol: I2C2_IRQHandler
+   Definitions
+      At line 483 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 159 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 363 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+I2S0_IRQHandler 0000004C
+
+Symbol: I2S0_IRQHandler
+   Definitions
+      At line 469 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 145 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 349 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+IRC_IRQHandler 0000004C
+
+Symbol: IRC_IRQHandler
+   Definitions
+      At line 402 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 12 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+   Uses
+      At line 78 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 282 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+KS_IRQHandler 0000004C
+
+Symbol: KS_IRQHandler
+   Definitions
+      At line 510 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 186 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 390 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+LCD_IRQHandler 0000004C
+
+Symbol: LCD_IRQHandler
+   Definitions
+      At line 501 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 177 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 381 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+NMI_Handler 00000040
+
+Symbol: NMI_Handler
+   Definitions
+      At line 252 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 60 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 253 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+NS_ISP_IRQHandler 0000004C
+
+Symbol: NS_ISP_IRQHandler
+   Definitions
+      At line 514 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 190 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 394 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+OPA0_IRQHandler 0000004C
+
+Symbol: OPA0_IRQHandler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 13 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 471 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 147 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 351 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+PDMA0_IRQHandler 0000004C
+
+Symbol: PDMA0_IRQHandler
+   Definitions
+      At line 441 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 117 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 321 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+PDMA1_IRQHandler 0000004C
+
+Symbol: PDMA1_IRQHandler
+   Definitions
+      At line 499 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 175 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 379 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+PWRWU_IRQHandler 0000004C
+
+Symbol: PWRWU_IRQHandler
+   Definitions
+      At line 403 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 79 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 283 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+PendSV_Handler 00000048
+
+Symbol: PendSV_Handler
+   Definitions
+      At line 270 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 72 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 271 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+ProcessHardFaultx 00000044
+
+Symbol: ProcessHardFaultx
+
+
+
+ARM Macro Assembler    Page 14 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 262 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 263 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: ProcessHardFaultx used once
+QEI0_IRQHandler 0000004C
+
+Symbol: QEI0_IRQHandler
+   Definitions
+      At line 485 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 161 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 365 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+QEI1_IRQHandler 0000004C
+
+Symbol: QEI1_IRQHandler
+   Definitions
+      At line 486 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 162 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 366 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+QSPI0_IRQHandler 0000004C
+
+Symbol: QSPI0_IRQHandler
+   Definitions
+      At line 423 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 99 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 303 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+RTC_IRQHandler 0000004C
+
+Symbol: RTC_IRQHandler
+   Definitions
+      At line 407 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 83 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 287 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+RTC_TAMPER_IRQHandler 0000004C
+
+Symbol: RTC_TAMPER_IRQHandler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 15 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 408 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 84 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 288 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 204 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 59 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 205 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SC0_IRQHandler 0000004C
+
+Symbol: SC0_IRQHandler
+   Definitions
+      At line 459 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 135 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 339 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SC1_IRQHandler 0000004C
+
+Symbol: SC1_IRQHandler
+   Definitions
+      At line 460 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 136 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 340 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SC2_IRQHandler 0000004C
+
+Symbol: SC2_IRQHandler
+   Definitions
+      At line 461 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 137 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 341 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SC3_IRQHandler 0000004C
+
+Symbol: SC3_IRQHandler
+
+
+
+ARM Macro Assembler    Page 16 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 462 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 342 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SC3_IRQHandler used once
+SDH0_IRQHandler 0000004C
+
+Symbol: SDH0_IRQHandler
+   Definitions
+      At line 465 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 141 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 345 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SDH1_IRQHandler 0000004C
+
+Symbol: SDH1_IRQHandler
+   Definitions
+      At line 491 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 371 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SDH1_IRQHandler used once
+SPD_Next 00000072
+
+Symbol: SPD_Next
+   Definitions
+      At line 574 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 569 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SPD_Next used once
+SPD_Return 00000060
+
+Symbol: SPD_Return
+   Definitions
+      At line 561 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 562 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SPD_Return used once
+SPI0_IRQHandler 0000004C
+
+Symbol: SPI0_IRQHandler
+   Definitions
+      At line 424 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 100 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 304 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 17 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+
+SPI1_IRQHandler 0000004C
+
+Symbol: SPI1_IRQHandler
+   Definitions
+      At line 452 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 128 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 332 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SPI2_IRQHandler 0000004C
+
+Symbol: SPI2_IRQHandler
+   Definitions
+      At line 453 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 129 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 333 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SPI3_IRQHandler 0000004C
+
+Symbol: SPI3_IRQHandler
+   Definitions
+      At line 463 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 139 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 343 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SRAM_IRQHandler 0000004C
+
+Symbol: SRAM_IRQHandler
+   Definitions
+      At line 404 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 80 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 284 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SVC_Handler 00000046
+
+Symbol: SVC_Handler
+   Definitions
+      At line 266 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 69 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+
+
+
+ARM Macro Assembler    Page 18 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 267 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+SysTick_Handler 0000004A
+
+Symbol: SysTick_Handler
+   Definitions
+      At line 274 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 73 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 275 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TAMPER_IRQHandler 0000004C
+
+Symbol: TAMPER_IRQHandler
+   Definitions
+      At line 511 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 187 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 391 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR0_IRQHandler 0000004C
+
+Symbol: TMR0_IRQHandler
+   Definitions
+      At line 433 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 109 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 313 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR1_IRQHandler 0000004C
+
+Symbol: TMR1_IRQHandler
+   Definitions
+      At line 434 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 110 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 314 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR2_IRQHandler 0000004C
+
+Symbol: TMR2_IRQHandler
+   Definitions
+      At line 435 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 111 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 19 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+      At line 315 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR3_IRQHandler 0000004C
+
+Symbol: TMR3_IRQHandler
+   Definitions
+      At line 436 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 112 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 316 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR4_IRQHandler 0000004C
+
+Symbol: TMR4_IRQHandler
+   Definitions
+      At line 515 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 191 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 395 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TMR5_IRQHandler 0000004C
+
+Symbol: TMR5_IRQHandler
+   Definitions
+      At line 516 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 192 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 396 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+TRNG_IRQHandler 0000004C
+
+Symbol: TRNG_IRQHandler
+   Definitions
+      At line 502 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 178 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 382 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART0_IRQHandler 0000004C
+
+Symbol: UART0_IRQHandler
+   Definitions
+      At line 437 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 20 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 113 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 317 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART1_IRQHandler 0000004C
+
+Symbol: UART1_IRQHandler
+   Definitions
+      At line 438 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 114 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 318 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART2_IRQHandler 0000004C
+
+Symbol: UART2_IRQHandler
+   Definitions
+      At line 449 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 125 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 329 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART3_IRQHandler 0000004C
+
+Symbol: UART3_IRQHandler
+   Definitions
+      At line 450 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 126 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 330 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART4_IRQHandler 0000004C
+
+Symbol: UART4_IRQHandler
+   Definitions
+      At line 475 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 151 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 355 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+UART5_IRQHandler 0000004C
+
+Symbol: UART5_IRQHandler
+   Definitions
+      At line 476 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+
+
+ARM Macro Assembler    Page 21 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 152 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 356 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+USBD_IRQHandler 0000004C
+
+Symbol: USBD_IRQHandler
+   Definitions
+      At line 454 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 130 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 334 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+USBH_IRQHandler 0000004C
+
+Symbol: USBH_IRQHandler
+   Definitions
+      At line 455 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 131 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 335 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+USBOTG_IRQHandler 0000004C
+
+Symbol: USBOTG_IRQHandler
+   Definitions
+      At line 456 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 132 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 336 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+USCI0_IRQHandler 0000004C
+
+Symbol: USCI0_IRQHandler
+   Definitions
+      At line 477 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 153 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 357 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+USCI1_IRQHandler 0000004C
+
+Symbol: USCI1_IRQHandler
+   Definitions
+      At line 478 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+
+
+
+ARM Macro Assembler    Page 22 Alphabetic symbol ordering
+Relocatable symbols
+
+artup_M2354.s
+   Uses
+      At line 154 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+      At line 358 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+WDT_IRQHandler 0000004C
+
+Symbol: WDT_IRQHandler
+   Definitions
+      At line 409 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 85 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 289 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+WWDT_IRQHandler 0000004C
+
+Symbol: WWDT_IRQHandler
+   Definitions
+      At line 410 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 86 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 290 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+__PC 0000005C
+
+Symbol: __PC
+   Definitions
+      At line 552 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 553 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: __PC used once
+__user_initial_stackheap 00000050
+
+Symbol: __user_initial_stackheap
+   Definitions
+      At line 538 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 536 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: __user_initial_stackheap used once
+105 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+Heap_Size 00001000
+
+Symbol: Heap_Size
+   Definitions
+      At line 36 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 41 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 541 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+Stack_Size 00002000
+
+Symbol: Stack_Size
+   Definitions
+      At line 23 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 27 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+      At line 540 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+
+g_pfnVectors_Size 00000210
+
+Symbol: g_pfnVectors_Size
+   Definitions
+      At line 197 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 54 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+Comment: g_pfnVectors_Size used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+SCU_IRQHandler 00000000
+
+Symbol: SCU_IRQHandler
+   Definitions
+      At line 56 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\sta
+rtup_M2354.s
+   Uses
+      At line 176 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SCU_IRQHandler used once
+SystemInit 00000000
+
+Symbol: SystemInit
+   Definitions
+      At line 206 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 243 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: SystemInit used once
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 207 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      At line 245 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+Comment: __main used once
+__use_two_region_memory 00000000
+
+Symbol: __use_two_region_memory
+   Definitions
+      At line 535 in file ..\libraries\m2354\Device\Nuvoton\M2354\Source\ARM\st
+artup_M2354.s
+   Uses
+      None
+Comment: __use_two_region_memory unused
+4 symbols
+459 symbols in table
